@@ -14,8 +14,10 @@
 /*exported Qiniu */
 /*exported QiniuJsSDK */
 
-;(function( global ){
+import pluploadEs6 from 'plupload-es6';
 
+let plupload = pluploadEs6.plupload;
+let moxie = pluploadEs6.moxie;
 /**
  * Creates new cookie or removes cookie with negative expiration
  * @param  key       The key or identifier for the store
@@ -1638,7 +1640,6 @@ function QiniuJsSDK() {
 
 var Qiniu = new QiniuJsSDK();
 
-global.Qiniu = Qiniu;
-global.QiniuJsSDK = QiniuJsSDK;
+// export {Qiniu, QiniuJsSDK};
 
-})( window );
+export default {Qiniu, QiniuJsSDK};

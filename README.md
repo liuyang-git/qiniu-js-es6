@@ -1,5 +1,18 @@
 Qiniu-JavaScript-SDK
 ============
+## Start
+
+```js
+npm install --save qiniu-js-es6
+```
+
+### 调用
+```js
+import qiniu from 'qiniu-js-es6'
+```
+
+
+## 原始介绍
 
 基于七牛 API 及 Plupload 开发的前端 JavaScript SDK
 
