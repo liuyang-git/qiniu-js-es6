@@ -637,7 +637,7 @@ function QiniuJsSDK() {
             }else{
                 ajax = that.createAjax();
             }
-            ajax.open('GET', uphosts_url, false);
+            ajax.open('GET', uphosts_url, true);
             var onreadystatechange = function(){
                 logger.debug("ajax.readyState: ", ajax.readyState);
                 if (ajax.readyState === 4) {
