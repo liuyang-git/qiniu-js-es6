@@ -852,7 +852,9 @@ function QiniuJsSDK() {
             // else
             //      getNewUptoken everytime before a new file upload
             if(!op.get_new_uptoken){
-                getNewUpToken(null);
+                // no need to get uptoken
+                // uptoken is retrieved before init
+                // getNewUpToken(null);
             }
             //getNewUpToken(null);
         });
@@ -1378,10 +1380,66 @@ function QiniuJsSDK() {
         logger.debug("bind FileUploaded event");
 
         // init uploader
-        uploader.init();
-        logger.debug("invoke uploader.init()");
+        new Promise(function(resolve, reject) {
+            if (op.uptoken) {
+                that.token = op.uptoken;
+            } else if (op.uptoken_url) {
+                logger.debug("get uptoken from: ", that.uptoken_url);
 
-        logger.debug("init uploader end");
+                var ajax = that.createAjax();
+                ajax.open('GET', that.uptoken_url + '?' + (+ new Date()), true);
+                ajax.onreadystatechange = function() {
+                    if (ajax.readyState === 4) {
+                        if (ajax.status === 200) {
+                            var res = that.parseJSON(ajax.responseText);
+                            that.token = res.uptoken;
+                            var segments = that.token.split(":");
+                            var putPolicy = that.parseJSON(that.URLSafeBase64Decode(segments[2]));
+                            if (!that.tokenMap) {
+                                that.tokenMap = {};
+                            }
+                            var getTimestamp = function(time) {
+                                return Math.ceil(time.getTime()/1000);
+                            };
+                            var serverTime = getTimestamp(new Date(ajax.getResponseHeader("date")));
+                            var clientTime = getTimestamp(new Date());
+                            that.tokenInfo = {
+                                serverDelay: clientTime - serverTime,
+                                deadline: putPolicy.deadline,
+                                isExpired: function() {
+                                    var leftTime = this.deadline - getTimestamp(new Date()) + this.serverDelay;
+                                    return leftTime < 600;
+                                }
+                            };
+                            logger.debug("get new uptoken: ", that.token);
+                            logger.debug("get token info: ", that.tokenInfo);
+                            getUpHosts(that.token);
+                            return resolve();
+                        } else {
+                            logger.error("get uptoken error: ", ajax.responseText);
+                            return reject();
+                        }
+                    }
+                };
+                ajax.send();
+            } else if (op.uptoken_func) {
+                logger.debug("get uptoken from uptoken_func");
+                that.token = op.uptoken_func(file);
+                logger.debug("get new uptoken: ", that.token);
+            } else {
+                logger.error("one of [uptoken, uptoken_url, uptoken_func] settings in options is required!");
+                return reject();
+            }
+            if (that.token) {
+                getUpHosts(that.token);
+                return resolve();
+            }
+        }).then(function() {
+            uploader.init();
+            logger.debug("invoke uploader.init()");
+
+            logger.debug("init uploader end");
+        });
 
         return uploader;
     };
