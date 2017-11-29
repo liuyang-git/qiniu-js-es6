@@ -1,7 +1,7 @@
 {
   "name": "qiniu-js-es6",
   "jsName": "qiniu",
-  "version": "1.0.30",
+  "version": "1.0.31",
   "private": false,
   "scripts": {
     "start": "node demo/server.js"

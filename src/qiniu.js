@@ -1424,7 +1424,7 @@ function QiniuJsSDK() {
                 ajax.send();
             } else if (op.uptoken_func) {
                 logger.debug("get uptoken from uptoken_func");
-                that.token = op.uptoken_func(file);
+                that.token = op.uptoken_func();
                 logger.debug("get new uptoken: ", that.token);
             } else {
                 logger.error("one of [uptoken, uptoken_url, uptoken_func] settings in options is required!");
